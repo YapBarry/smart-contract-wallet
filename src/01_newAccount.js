@@ -6,6 +6,21 @@ const { secp256k1 } = require("ethereum-cryptography/secp256k1");
 const { keccak256 } = require("ethereum-cryptography/keccak");
 const { bytesToHex } = require("ethereum-cryptography/utils");
 
+const { writeFileSync } = require("fs");
+
+// save the private/public key pairs and public address info and save it into a json file
+function _store(_privateKey, _publicKey, _address) {
+  const accountOne = {
+    privateKey: _privateKey,
+    publicKey: _publicKey,
+    address: _address,
+  };
+
+  const accountOneData = JSON.stringify(accountOne);
+  // fs.writeFileSync( File_Path, Data, Options )
+  writeFileSync("account 1.json", accountOneData);
+}
+
 function _generateMnemonic() {
     const strength = 256; // 256 bits, 24 words; default is 128 bits, 12 words
     const mnemonic = generateMnemonic(wordlist, strength);
@@ -43,6 +58,7 @@ async function main() {
   const accountOnePublicKey = _getPublicKey(accountOnePrivateKey);
   const accountOneAddress = _getEthAddress(accountOnePublicKey);
   console.log(`Account One Wallet Address: 0x${bytesToHex(accountOneAddress)}`);
+  _store(accountOnePrivateKey, accountOnePublicKey, accountOneAddress);
 }
 
 main()
@@ -51,3 +67,5 @@ main()
     console.error(error);
     process.exit(1);
   });
+
+  module.exports = _store;

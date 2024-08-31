@@ -5,6 +5,9 @@ const { secp256k1 } = require("ethereum-cryptography/secp256k1");
 const { keccak256 } = require("ethereum-cryptography/keccak");
 const { bytesToHex } = require("ethereum-cryptography/utils");
 
+const { _store } = require("./01_newAccount.js");
+
+
 async function main(_mnemonic) {
   const entropy = mnemonicToEntropy(_mnemonic, wordlist);
   const hdRootKey = HDKey.fromMasterSeed(entropy);
@@ -13,6 +16,7 @@ async function main(_mnemonic) {
   const address = keccak256(publicKey).slice(-20);
 
   console.log(`Account One Wallet Address: 0x${bytesToHex(address)}`);
+  _store(privateKey, publicKey, address);
 }
 
 main(process.argv[2])
