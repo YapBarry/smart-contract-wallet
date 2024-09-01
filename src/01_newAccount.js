@@ -49,6 +49,7 @@ function _getEthAddress(_publicKey) {
 
 // generate new seedphrase and the first account out of it
 async function main() {
+  console.log("starttt");
   const { mnemonic, entropy } = _generateMnemonic();
   console.log(`WARNING! Never disclose your Seed Phrase:\n ${mnemonic}`);
 
@@ -68,4 +69,4 @@ main()
     process.exit(1);
   });
 
-  module.exports = _store;
+  

@@ -4,8 +4,7 @@ const { HDKey } = require("ethereum-cryptography/hdkey");
 const { secp256k1 } = require("ethereum-cryptography/secp256k1");
 const { keccak256 } = require("ethereum-cryptography/keccak");
 const { bytesToHex } = require("ethereum-cryptography/utils");
-
-const { _store } = require("./01_newAccount.js");
+const { writeFileSync } = require("fs");
 
 
 async function main(_mnemonic) {
@@ -14,9 +13,15 @@ async function main(_mnemonic) {
   const privateKey = hdRootKey.deriveChild(0).privateKey;
   const publicKey = secp256k1.getPublicKey(privateKey);
   const address = keccak256(publicKey).slice(-20);
-
   console.log(`Account One Wallet Address: 0x${bytesToHex(address)}`);
-  _store(privateKey, publicKey, address);
+  
+  const accountOne = {
+    privateKey: privateKey,
+    publicKey: publicKey,
+    address: address,
+  };
+  const accountOneData = JSON.stringify(accountOne);
+  writeFileSync("account 1.json", accountOneData);
 }
 
 main(process.argv[2])
