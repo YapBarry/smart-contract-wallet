@@ -1,24 +1,22 @@
 const { generateMnemonic, mnemonicToEntropy } = require("ethereum-cryptography/bip39");
 const { wordlist } = require("ethereum-cryptography/bip39/wordlists/english");
-
 const { HDKey } = require("ethereum-cryptography/hdkey");
 const { secp256k1 } = require("ethereum-cryptography/secp256k1");
-const { keccak256 } = require("ethereum-cryptography/keccak");
-const { bytesToHex } = require("ethereum-cryptography/utils");
-
 const { writeFileSync } = require("fs");
+const {computeAddress} = require("ethers");
+const { hexlify } = require("ethers");
 
 // save the private/public key pairs and public address info and save it into a json file
 function _store(_privateKey, _publicKey, _address) {
-  const accountOne = {
-    privateKey: _privateKey,
-    publicKey: _publicKey,
-    address: _address,
-  };
+    const accountOne = {
+        privateKey: _privateKey,
+        publicKey: _publicKey,
+        address: _address,
+    };
 
-  const accountOneData = JSON.stringify(accountOne);
-  // fs.writeFileSync( File_Path, Data, Options )
-  writeFileSync("account 1.json", accountOneData);
+    const accountOneData = JSON.stringify(accountOne);
+    // fs.writeFileSync( File_Path, Data, Options )
+    writeFileSync("account 1.json", accountOneData);
 }
 
 function _generateMnemonic() {
@@ -30,7 +28,7 @@ function _generateMnemonic() {
 
 // get rootkey from seedphrase
 function _getHdRootKey(_mnemonic) {
-  return HDKey.fromMasterSeed(_mnemonic);
+    return HDKey.fromMasterSeed(_mnemonic);
 }
 
 // get private keys for accounts tied to the same rootkey/ seedphrase
@@ -44,29 +42,26 @@ function _getPublicKey(_privateKey) {
 
 // we get eth address by applying Keccak-256 to the public key and then taking the last 20 bytes of the result
 function _getEthAddress(_publicKey) {
-  return keccak256(_publicKey).slice(-20);
+    return computeAddress(hexlify(_publicKey));
 }
 
 // generate new seedphrase and the first account out of it
 async function main() {
-  console.log("starttt");
-  const { mnemonic, entropy } = _generateMnemonic();
-  console.log(`WARNING! Never disclose your Seed Phrase:\n ${mnemonic}`);
+    const { mnemonic, entropy } = _generateMnemonic();
+    console.log(`WARNING! Never disclose your Seed Phrase:\n ${mnemonic}`);
 
-  const hdRootKey = _getHdRootKey(entropy);
-  const accountOneIndex = 0;
-  const accountOnePrivateKey = _generatePrivateKey(hdRootKey, accountOneIndex);
-  const accountOnePublicKey = _getPublicKey(accountOnePrivateKey);
-  const accountOneAddress = _getEthAddress(accountOnePublicKey);
-  console.log(`Account One Wallet Address: 0x${bytesToHex(accountOneAddress)}`);
-  _store(accountOnePrivateKey, accountOnePublicKey, accountOneAddress);
+    const hdRootKey = _getHdRootKey(entropy);
+    const accountOneIndex = 0;
+    const accountOnePrivateKey = _generatePrivateKey(hdRootKey, accountOneIndex);
+    const accountOnePublicKey = _getPublicKey(accountOnePrivateKey);
+    const accountOneAddress = _getEthAddress(accountOnePublicKey);
+    console.log("Account 1 Wallet Address: ", accountOneAddress);
+    _store(accountOnePrivateKey, accountOnePublicKey, accountOneAddress);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
+main().then(() => process.exit(0)).catch((error) => {
     console.error(error);
     process.exit(1);
-  });
+});
 
   
